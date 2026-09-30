@@ -27,10 +27,10 @@ variable "hostname" {
   type        = string
 }
 
-variable "ssh_keys" {
-  description = "As chaves SSH para o usuário root do container LXC."
-  type        = list(string)
-  sensitive   = true
+variable "ssh_public_key_file" {
+  description = "Caminho para a chave SSH pública usada no container LXC."
+  type        = string
+  default     = "~/.ssh/id_ed25519.pub"
 }
 
 variable "os_type" {
@@ -104,4 +104,19 @@ variable "content_type" {
 variable "template_file_url" {
   description = "A URL do arquivo de template a ser baixado."
   type        = string
+}
+
+##########################
+# Variaveis providers.tf #
+##########################
+
+variable "proxmox_endpoint" {
+  description = "O endpoint da API do Proxmox."
+  type        = string
+}
+
+variable "proxmox_api_token" {
+  description = "O token de API do Proxmox."
+  type        = string
+  sensitive   = true
 }

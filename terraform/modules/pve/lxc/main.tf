@@ -1,3 +1,11 @@
+resource "proxmox_download_file" "template_lxc" {
+  content_type = var.content_type
+  datastore_id = var.datastore_id
+  node_name    = var.node_name
+
+  url = var.template_file_url
+}
+
 resource "proxmox_virtual_environment_container" "lxc_container" {
   vm_id       = var.vm_id
   node_name   = var.node_name
@@ -18,18 +26,17 @@ resource "proxmox_virtual_environment_container" "lxc_container" {
     }
 
     user_account {
-      keys     = var.ssh_keys
-      password = var.root_password
+      keys = var.ssh_keys
     }
   }
 
   operating_system {
     type             = var.os_type
-    template_file_id = var.template_file_id
+    template_file_id = proxmox_download_file.template_lxc.id
   }
 
   disk {
-    datastore_id = var.datastore_id
+    datastore_id = var.disk_datastore_id
     size         = var.disk_size
   }
 
