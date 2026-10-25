@@ -114,9 +114,3 @@ variable "proxmox_endpoint" {
   description = "O endpoint da API do Proxmox."
   type        = string
 }
-
-variable "proxmox_api_token" {
-  description = "O token de API do Proxmox."
-  type        = string
-  sensitive   = true
-}
