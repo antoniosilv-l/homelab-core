@@ -16,6 +16,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     enabled = var.agent_enabled
     type    = var.agent_type
   }
+
   stop_on_destroy = var.stop_on_destroy
 
   startup {
@@ -45,11 +46,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   cpu {
-    architecture = var.cpu_architecture
-    cores = var.cpu_cores
+    cores   = var.cpu_cores
     sockets = var.cpu_sockets
-    type  = var.cpu_type
-    limit = var.cpu_limit
+    type    = var.cpu_type
+    limit   = var.cpu_limit
   }
 
   memory {
@@ -58,10 +58,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   network_device {
-    vlan_id = var.network_vlan_id
-    model   = var.network_model
+    vlan_id  = var.network_vlan_id
+    model    = var.network_model
     firewall = var.network_firewall
-    
+
   }
 
   tpm_state {

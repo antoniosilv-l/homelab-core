@@ -2,8 +2,8 @@
 #    Variaveis main.tf   #
 ##########################
 variable "name" {
-    description = "O nome da VM."
-    type        = string
+  description = "O nome da VM."
+  type        = string
 }
 
 variable "vm_id" {
@@ -28,8 +28,13 @@ variable "agent_enabled" {
 }
 
 variable "agent_type" {
-  description = "O tipo de agente da VM."
-  type        = string
+  type    = string
+  default = "virtio"
+
+  validation {
+    condition     = contains(["isa", "virtio"], var.agent_type)
+    error_message = "agent_type deve ser isa ou virtio."
+  }
 }
 
 variable "stop_on_destroy" {
@@ -78,10 +83,6 @@ variable "disk_interface" {
   type        = string
 }
 
-variable "cpu_architecture" {
-  description = "A arquitetura da CPU para a VM."
-  type        = string
-}
 
 variable "cpu_cores" {
   description = "O número de núcleos de CPU para a VM."
