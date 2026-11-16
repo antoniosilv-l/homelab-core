@@ -68,3 +68,9 @@ A organização em desenvolvimento separa os arquivos de infraestrutura, automa�
 - **Ansible** para configuração dos sistemas e serviços.
 - **MikroTik, DHCP, TFTP e PXE** para a inicialização e instalação pela rede.
 - **Checkov e Trivy**, planejados para adicionar verificações de segurança à automação.
+
+## Acesso ao Proxmox
+
+O script [`scripts/proxmox-iam.sh`](scripts/proxmox-iam.sh) gerencia usuários,
+roles, ACLs e tokens de API. Consulte o
+[runbook de IAM do Proxmox](docs/runbooks/proxmox-iam.md) antes de executá-lo.
