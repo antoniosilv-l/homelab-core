@@ -1,5 +1,5 @@
 module "lxc_container" {
-  source = "../../modules/pve/lxc"
+  source = "../../../../../modules/pve/lxc"
 
   vm_id        = var.vm_id
   node_name    = var.node_name
