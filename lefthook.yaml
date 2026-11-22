@@ -1,0 +1,25 @@
+pre-commit:
+  parallel: true
+  commands:
+    terraform-fmt:
+      glob: "*.tf"
+      run: terraform fmt -check {staged_files}
+    terraform-lint:
+      glob: "*.tf"
+      run: tflint --recursive
+    shellcheck:
+      glob: "*.sh"
+      run: shellcheck {staged_files}
+    shell-format:
+      glob: "*.sh"
+      run: shfmt -i 2 -d {staged_files}
+    yaml-format:
+      glob: "*.{yml,yaml}"
+      run: yamlfmt -lint {staged_files}
+    gitleaks:
+      run: gitleaks git --staged
+pre-push:
+  parallel: true
+  commands:
+    trivy-terraform:
+      run: trivy config --severity HIGH,CRITICAL terraform/

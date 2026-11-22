@@ -1,0 +1,57 @@
+##########################
+# VM e inicializacao
+##########################
+name        = "debian-hom"
+vm_id       = 100
+node_name   = "srv"
+description = "VM Debian cloud gerenciada por Terraform."
+
+agent_enabled = true
+agent_type    = "virtio"
+
+stop_on_destroy = true
+
+startup_order      = 3
+startup_up_delay   = 60
+startup_down_delay = 60
+
+username  = "homelab"
+user_keys = ["/absolute/path/to/id_ed25519.pub"]
+
+##########################
+# Imagem e storage
+##########################
+os_type                 = "l26"
+content_type            = "import"
+template_file_url       = "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
+file_name               = "debian-13-generic-amd64.qcow2"
+datastore_id            = "local"
+cloud_init_datastore_id = "local"
+
+disk_datastore_id = "local-lvm"
+disk_size         = 20
+disk_interface    = "scsi0"
+
+##########################
+# Recursos e rede
+##########################
+cpu_cores   = 2
+cpu_sockets = 1
+cpu_type    = "x86-64-v2-AES"
+cpu_limit   = 0
+
+memory_dedicated = 2048
+memory_floating  = 2048
+
+network_bridge   = "vmbr0"
+network_model    = "virtio"
+network_firewall = false
+
+tpm_version = ""
+tags        = ["homelab", "terraform", "debian"]
+
+##########################
+# Proxmox
+##########################
+proxmox_endpoint     = "https://<proxmox-host>:8006/api2/json"
+proxmox_ssh_username = "root"

@@ -19,10 +19,15 @@ PVE 8.x ou 9.x; em clusters, o quorum é obrigatório. Ele usa `pveum`,
 separadamente somente se o fluxo do usuário precisar delas.
 
 `TerraformAPI` inclui as permissões para provisionamento de VMs/LXC, template,
-storage e SDN registradas no catálogo do script. Usa `VM.Monitor` no PVE 8 e
-`VM.GuestAgent.Audit` no PVE 9. `AnsibleAPI` permite auditoria e gerenciamento
-de energia de VMs; ajuste o catálogo após validar os módulos e endpoints
-efetivamente usados.
+storage e SDN registradas no catálogo do script, incluindo
+`Datastore.AllocateSpace`, `Datastore.AllocateTemplate`, `Datastore.Audit`,
+`SDN.Use`, `Sys.Audit`, `Sys.Modify` e `VM.Audit`. Usa `VM.Monitor` no PVE 8 e
+`VM.GuestAgent.Audit` no PVE 9. Ao executar `create` para uma `TerraformAPI`
+existente que corresponda exatamente a um catálogo anterior, o script acrescenta
+as permissões que faltam (`Sys.Modify` e/ou `VM.Audit`) sem substituir as
+permissões atuais. Outras divergências continuam exigindo revisão manual.
+`AnsibleAPI` permite auditoria e gerenciamento de energia de VMs; ajuste o
+catálogo após validar os módulos e endpoints efetivamente usados.
 
 Os perfis de automação têm `/` como caminho padrão por compatibilidade, mas
 isso concede escopo amplo. Prefira caminhos mais restritos para o seu ambiente.

@@ -1,0 +1,35 @@
+##########################
+#  Variaveis locals.tf   #
+##########################
+ssh_public_key_file = "~/.ssh/id_ed25519.pub"
+
+##########################
+#    Variaveis main.tf   #
+##########################
+
+vm_id             = 200
+node_name         = "srv"
+description       = "Container LXC dedicado ao PostgreSQL."
+unprivileged      = true
+hostname          = "postgres.homelab.local"
+datastore_id      = "local"
+os_type           = "debian"
+content_type      = "vztmpl"
+template_file_url = "https://download.proxmox.com/images/system/debian-13-standard_13.6-1_amd64.tar.zst"
+disk_datastore_id = "local-lvm"
+disk_size         = 20
+cpu_architecture  = "amd64"
+cpu_cores         = 2
+cpu_limit         = 1
+memory_dedicated  = 2048
+memory_swap       = 1024
+console_enabled   = true
+console_type      = "shell"
+tags              = ["homelab", "lxc", "postgres"]
+
+##########################
+# Variaveis providers.tf #
+##########################
+
+proxmox_endpoint     = "https://<proxmox-host>:8006/api2/json"
+postgres_allowed_cidr = "192.168.0.0/24"
