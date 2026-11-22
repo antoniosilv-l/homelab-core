@@ -114,3 +114,25 @@ variable "proxmox_endpoint" {
   description = "O endpoint da API do Proxmox."
   type        = string
 }
+
+variable "postgres_allowed_cidr" {
+  description = "CIDR autorizado a conectar ao PostgreSQL."
+  type        = string
+  default     = "192.168.88.0/24"
+
+  validation {
+    condition     = can(cidrhost(var.postgres_allowed_cidr, 0))
+    error_message = "Informe um CIDR IPv4 ou IPv6 válido para postgres_allowed_cidr."
+  }
+}
+
+variable "postgres_password" {
+  description = "Senha forte para o usuário PostgreSQL postgres, fornecida via TF_VAR_postgres_password."
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.postgres_password) == 64 && can(regex("^[0-9a-fA-F]{64}$", var.postgres_password))
+    error_message = "postgres_password deve ter exatamente 64 caracteres hexadecimais; gere-a com openssl rand -hex 32."
+  }
+}

@@ -22,7 +22,7 @@ variable "description" {
 }
 
 variable "agent_enabled" {
-  description = "Se o agente da VM deve ser habilitado."
+  description = "Habilita o dispositivo QEMU Guest Agent no Proxmox; não instala o pacote dentro do sistema convidado."
   type        = bool
   default     = true
 }
@@ -58,6 +58,21 @@ variable "startup_down_delay" {
   type        = number
 }
 
+variable "username" {
+  description = "O nome de usuário para a conta de usuário da VM."
+  type        = string
+}
+
+variable "user_keys" {
+  description = "As chaves SSH para a conta de usuário da VM."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.user_keys) > 0
+    error_message = "Informe ao menos uma chave SSH pública em user_keys."
+  }
+}
+
 variable "os_type" {
   description = "O tipo de sistema operacional da VM."
   type        = string
@@ -66,6 +81,12 @@ variable "os_type" {
 variable "datastore_id" {
   description = "O ID do armazenamento de dados para a VM."
   type        = string
+}
+
+variable "cloud_init_datastore_id" {
+  description = "O storage Proxmox habilitado para snippets cloud-init."
+  type        = string
+  default     = "local"
 }
 
 variable "disk_datastore_id" {
@@ -114,9 +135,9 @@ variable "memory_floating" {
   type        = number
 }
 
-variable "network_vlan_id" {
-  description = "O ID da VLAN para a interface de rede da VM."
-  type        = number
+variable "network_bridge" {
+  description = "O ID da bridge para a interface de rede da VM."
+  type        = string
 }
 
 variable "network_model" {
@@ -142,7 +163,12 @@ variable "tags" {
 }
 
 variable "content_type" {
-  description = "O tipo de conteúdo do arquivo a ser baixado."
+  description = "Tipo da imagem baixada: iso para mídia de instalação ou import para imagem de disco."
+  type        = string
+}
+
+variable "file_name" {
+  description = "O nome do arquivo de template a ser baixado."
   type        = string
 }
 

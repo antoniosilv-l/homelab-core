@@ -3,7 +3,21 @@ resource "proxmox_download_file" "template_vm" {
   datastore_id = var.datastore_id
   node_name    = var.node_name
 
-  url = var.template_file_url
+  url       = var.template_file_url
+  file_name = var.file_name
+}
+
+resource "proxmox_virtual_environment_file" "cloud_config" {
+  count = local.is_cloud_image ? 1 : 0
+
+  content_type = "snippets"
+  datastore_id = var.cloud_init_datastore_id
+  node_name    = var.node_name
+
+  source_raw {
+    data      = local.cloud_init_user_data
+    file_name = "${var.vm_id}-cloud-config.yaml"
+  }
 }
 
 resource "proxmox_virtual_environment_vm" "vm" {
@@ -11,6 +25,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   vm_id       = var.vm_id
   node_name   = var.node_name
   description = var.description
+  boot_order  = local.is_cloud_image ? [var.disk_interface] : [var.disk_interface, "ide2"]
 
   agent {
     enabled = var.agent_enabled
@@ -33,6 +48,16 @@ resource "proxmox_virtual_environment_vm" "vm" {
       }
     }
 
+    dynamic "user_account" {
+      for_each = local.is_cloud_image ? [] : [true]
+
+      content {
+        username = var.username
+        keys     = [for key_path in var.user_keys : trimspace(file(key_path))]
+      }
+    }
+
+    user_data_file_id = local.is_cloud_image ? proxmox_virtual_environment_file.cloud_config[0].id : null
   }
 
   operating_system {
@@ -43,6 +68,16 @@ resource "proxmox_virtual_environment_vm" "vm" {
     datastore_id = var.disk_datastore_id
     size         = var.disk_size
     interface    = var.disk_interface
+    import_from  = local.is_cloud_image ? proxmox_download_file.template_vm.id : null
+  }
+
+  dynamic "cdrom" {
+    for_each = local.is_cloud_image ? [] : [true]
+
+    content {
+      file_id   = proxmox_download_file.template_vm.id
+      interface = "ide2"
+    }
   }
 
   cpu {
@@ -58,16 +93,16 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   network_device {
-    vlan_id  = var.network_vlan_id
+    bridge   = var.network_bridge
     model    = var.network_model
     firewall = var.network_firewall
-
   }
 
   tpm_state {
     version = var.tpm_version
   }
 
+  serial_device {}
 
   tags = var.tags
 }

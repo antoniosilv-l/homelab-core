@@ -12,7 +12,7 @@ pre-commit:
       run: shellcheck {staged_files}
     shell-format:
       glob: "*.sh"
-      run: shfmt -d {staged_files}
+      run: shfmt -i 2 -d {staged_files}
     yaml-format:
       glob: "*.{yml,yaml}"
       run: yamlfmt -lint {staged_files}

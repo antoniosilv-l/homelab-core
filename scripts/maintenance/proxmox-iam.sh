@@ -87,45 +87,45 @@ trim() {
 
 role_privileges() {
   case $1 in
-    terraform-api)
-      if [[ $PVE_MAJOR == 9 ]]; then
-        printf '%s' 'Datastore.Audit,Datastore.AllocateSpace,Datastore.AllocateTemplate,SDN.Use,Sys.AccessNetwork,Sys.Audit,Sys.Console,VM.Allocate,VM.Clone,VM.Config.CDROM,VM.Config.CPU,VM.Config.Cloudinit,VM.Config.Disk,VM.Config.HWType,VM.Config.Memory,VM.Config.Network,VM.Config.Options,VM.GuestAgent.Audit,VM.PowerMgmt'
-      else
-        printf '%s' 'Datastore.Audit,Datastore.AllocateSpace,Datastore.AllocateTemplate,SDN.Use,Sys.AccessNetwork,Sys.Audit,Sys.Console,VM.Allocate,VM.Clone,VM.Config.CDROM,VM.Config.CPU,VM.Config.Cloudinit,VM.Config.Disk,VM.Config.HWType,VM.Config.Memory,VM.Config.Network,VM.Config.Options,VM.Monitor,VM.PowerMgmt'
-      fi
-      ;;
-    ansible-api)
-      printf '%s' 'Datastore.Audit,Sys.Audit,VM.Audit,VM.PowerMgmt'
-      ;;
-    *)
-      return 1
-      ;;
+  terraform-api)
+    if [[ $PVE_MAJOR == 9 ]]; then
+      printf '%s' 'Datastore.Audit,Datastore.Allocate,Datastore.AllocateSpace,Datastore.AllocateTemplate,SDN.Use,Sys.AccessNetwork,Sys.Audit,Sys.Console,Sys.Modify,VM.Allocate,VM.Audit,VM.Clone,VM.Config.CDROM,VM.Config.CPU,VM.Config.Cloudinit,VM.Config.Disk,VM.Config.HWType,VM.Config.Memory,VM.Config.Network,VM.Config.Options,VM.GuestAgent.Audit,VM.PowerMgmt'
+    else
+      printf '%s' 'Datastore.Audit,Datastore.Allocate,Datastore.AllocateSpace,Datastore.AllocateTemplate,SDN.Use,Sys.AccessNetwork,Sys.Audit,Sys.Console,Sys.Modify,VM.Allocate,VM.Audit,VM.Clone,VM.Config.CDROM,VM.Config.CPU,VM.Config.Cloudinit,VM.Config.Disk,VM.Config.HWType,VM.Config.Memory,VM.Config.Network,VM.Config.Options,VM.Monitor,VM.PowerMgmt'
+    fi
+    ;;
+  ansible-api)
+    printf '%s' 'Datastore.Audit,Sys.Audit,VM.Audit,VM.PowerMgmt'
+    ;;
+  *)
+    return 1
+    ;;
   esac
 }
 
 role_id() {
   case $1 in
-    terraform-api) printf '%s' 'TerraformAPI' ;;
-    ansible-api) printf '%s' 'AnsibleAPI' ;;
-    usuario-comum) printf '%s' 'PVEVMUser' ;;
-    auditoria) printf '%s' 'PVEAuditor' ;;
-    *) return 1 ;;
+  terraform-api) printf '%s' 'TerraformAPI' ;;
+  ansible-api) printf '%s' 'AnsibleAPI' ;;
+  usuario-comum) printf '%s' 'PVEVMUser' ;;
+  auditoria) printf '%s' 'PVEAuditor' ;;
+  *) return 1 ;;
   esac
 }
 
 default_path() {
   case $1 in
-    terraform-api|ansible-api|auditoria) printf '/' ;;
-    usuario-comum) printf '/pool/%s' "$NAME" ;;
-    *) return 1 ;;
+  terraform-api | ansible-api | auditoria) printf '/' ;;
+  usuario-comum) printf '/pool/%s' "$NAME" ;;
+  *) return 1 ;;
   esac
 }
 
 default_privsep() {
   case $1 in
-    terraform-api|ansible-api) printf '0' ;;
-    usuario-comum|auditoria) printf '1' ;;
-    *) return 1 ;;
+  terraform-api | ansible-api) printf '0' ;;
+  usuario-comum | auditoria) printf '1' ;;
+  *) return 1 ;;
   esac
 }
 
@@ -137,68 +137,83 @@ parse_args() {
   }
   shift
   case $action in
-    create|delete|show|reset|list-roles) ;;
-    -h|--help) usage; exit 0 ;;
-    *) die "comando desconhecido: $action" ;;
+  create | delete | show | reset | list-roles) ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *) die "comando desconhecido: $action" ;;
   esac
 
   while (($#)); do
     case $1 in
-      --role|--name|--realm|--comment|--group|--path|--token-name|--privsep|--expire|--password-file|--output)
-        (($# >= 2)) || die "faltou valor para $1"
-        case $1 in
-          --role) ROLE=$2 ;;
-          --name) NAME=$2 ;;
-          --realm) REALM=$2; REALM_SET=1 ;;
-          --comment) COMMENT=$2 ;;
-          --group) GROUP_NAME=$2 ;;
-          --path) ACL_PATH=$2 ;;
-          --token-name) TOKEN_NAME=$2 ;;
-          --privsep) PRIVSEP=$2 ;;
-          --expire) EXPIRE=$2 ;;
-          --password-file) PASSWORD_FILE=$2 ;;
-          --output) OUTPUT_FILE=$2 ;;
-        esac
-        shift 2
+    --role | --name | --realm | --comment | --group | --path | --token-name | --privsep | --expire | --password-file | --output)
+      (($# >= 2)) || die "faltou valor para $1"
+      case $1 in
+      --role) ROLE=$2 ;;
+      --name) NAME=$2 ;;
+      --realm)
+        REALM=$2
+        REALM_SET=1
         ;;
-      --dry-run) DRY_RUN=1; shift ;;
-      --yes) ASSUME_YES=1; shift ;;
-      -h|--help) usage; exit 0 ;;
-      *) die "opção desconhecida: $1" ;;
+      --comment) COMMENT=$2 ;;
+      --group) GROUP_NAME=$2 ;;
+      --path) ACL_PATH=$2 ;;
+      --token-name) TOKEN_NAME=$2 ;;
+      --privsep) PRIVSEP=$2 ;;
+      --expire) EXPIRE=$2 ;;
+      --password-file) PASSWORD_FILE=$2 ;;
+      --output) OUTPUT_FILE=$2 ;;
+      esac
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --yes)
+      ASSUME_YES=1
+      shift
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *) die "opção desconhecida: $1" ;;
     esac
   done
 
   [[ $action == list-roles ]] && {
-    [[ -z $ROLE$NAME$COMMENT$GROUP_NAME$ACL_PATH$TOKEN_NAME$PRIVSEP$EXPIRE$PASSWORD_FILE$OUTPUT_FILE ]] \
-      || die 'list-roles não aceita opções adicionais'
+    [[ -z $ROLE$NAME$COMMENT$GROUP_NAME$ACL_PATH$TOKEN_NAME$PRIVSEP$EXPIRE$PASSWORD_FILE$OUTPUT_FILE ]] ||
+      die 'list-roles não aceita opções adicionais'
     [[ $DRY_RUN == 0 && $ASSUME_YES == 0 ]] || die 'list-roles não aceita --dry-run/--yes'
     list_roles
     exit 0
   }
 
   if [[ $action == reset ]]; then
-    [[ -z $ROLE$NAME$COMMENT$GROUP_NAME$ACL_PATH$TOKEN_NAME$PRIVSEP$EXPIRE$PASSWORD_FILE$OUTPUT_FILE ]] \
-      && [[ $REALM_SET == 0 ]] \
-      || die 'reset não aceita opções de usuário'
+    [[ -z $ROLE$NAME$COMMENT$GROUP_NAME$ACL_PATH$TOKEN_NAME$PRIVSEP$EXPIRE$PASSWORD_FILE$OUTPUT_FILE ]] &&
+      [[ $REALM_SET == 0 ]] ||
+      die 'reset não aceita opções de usuário'
     [[ $ASSUME_YES == 0 ]] || die 'reset não aceita --yes; a confirmação digitada é obrigatória'
     return
   fi
 
   [[ -n $ROLE ]] || die '--role é obrigatório'
   [[ -n $NAME ]] || die '--name é obrigatório'
-  [[ $ROLE =~ ^(terraform-api|ansible-api|usuario-comum|auditoria)$ ]] \
-    || die "role inválida: $ROLE"
-  [[ $NAME =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] \
-    || die '--name deve começar com letra ou número e conter apenas letras, números, _ e -'
+  [[ $ROLE =~ ^(terraform-api|ansible-api|usuario-comum|auditoria)$ ]] ||
+    die "role inválida: $ROLE"
+  [[ $NAME =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] ||
+    die '--name deve começar com letra ou número e conter apenas letras, números, _ e -'
   [[ $REALM == pve || $REALM == pam ]] || die '--realm deve ser pve ou pam'
   USER_ID="$NAME@$REALM"
   GROUP_ID=${GROUP_NAME:-grp-$ROLE}
-  [[ $GROUP_ID =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] \
-    || die '--group deve começar com letra ou número e conter apenas letras, números, _ e -'
+  [[ $GROUP_ID =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] ||
+    die '--group deve começar com letra ou número e conter apenas letras, números, _ e -'
   PVE_ROLE=$(role_id "$ROLE") || die "role inválida: $ROLE"
   EFFECTIVE_PATH=${ACL_PATH:-$(default_path "$ROLE")}
-  [[ $EFFECTIVE_PATH =~ ^/[a-zA-Z0-9._/-]*$ && $EFFECTIVE_PATH != *'..'* \
-    && $EFFECTIVE_PATH != *//* ]] || die 'caminho ACL inválido'
+  [[ $EFFECTIVE_PATH =~ ^/[a-zA-Z0-9._/-]*$ && $EFFECTIVE_PATH != *'..'* &&
+    $EFFECTIVE_PATH != *//* ]] || die 'caminho ACL inválido'
 
   if [[ -n $PRIVSEP ]]; then
     [[ $PRIVSEP == 0 || $PRIVSEP == 1 ]] || die '--privsep deve ser 0 ou 1'
@@ -220,36 +235,36 @@ parse_args() {
       if [[ $EXPIRE =~ ^[0-9]+$ ]]; then
         ((EXPIRE > $(date +%s))) || die '--expire deve estar no futuro'
       else
-        EXPIRE=$(date -d "$EXPIRE" +%s 2>/dev/null) \
-          || die '--expire deve ser uma data reconhecida ou epoch em segundos'
+        EXPIRE=$(date -d "$EXPIRE" +%s 2>/dev/null) ||
+          die '--expire deve ser uma data reconhecida ou epoch em segundos'
         ((EXPIRE > $(date +%s))) || die '--expire deve estar no futuro'
       fi
     fi
   fi
 
   if [[ -n $PASSWORD_FILE ]]; then
-    [[ $action == create && $ROLE == usuario-comum ]] \
-      || die '--password-file só pode ser usado em create --role usuario-comum'
+    [[ $action == create && $ROLE == usuario-comum ]] ||
+      die '--password-file só pode ser usado em create --role usuario-comum'
     [[ $PASSWORD_FILE == - || -r $PASSWORD_FILE ]] || die 'arquivo de senha não pode ser lido'
   fi
-  [[ -z $OUTPUT_FILE || ( $action == create && -n $TOKEN_NAME ) ]] \
-    || die '--output requer create com token'
-  [[ -z $EXPIRE || ( $action == create && -n $TOKEN_NAME ) ]] \
-    || die '--expire requer create com token'
-  [[ -z $PRIVSEP || ( $action == create && -n $TOKEN_NAME ) ]] \
-    || die '--privsep requer create com token'
+  [[ -z $OUTPUT_FILE || ($action == create && -n $TOKEN_NAME) ]] ||
+    die '--output requer create com token'
+  [[ -z $EXPIRE || ($action == create && -n $TOKEN_NAME) ]] ||
+    die '--expire requer create com token'
+  [[ -z $PRIVSEP || ($action == create && -n $TOKEN_NAME) ]] ||
+    die '--privsep requer create com token'
   if [[ $action == delete ]]; then
-    [[ -z $COMMENT$ACL_PATH$TOKEN_NAME$PASSWORD_FILE$OUTPUT_FILE$EXPIRE$PRIVSEP ]] \
-      || die 'delete não aceita path, comment, opções de token ou senha'
+    [[ -z $COMMENT$ACL_PATH$TOKEN_NAME$PASSWORD_FILE$OUTPUT_FILE$EXPIRE$PRIVSEP ]] ||
+      die 'delete não aceita path, comment, opções de token ou senha'
     [[ $DRY_RUN == 0 || $ASSUME_YES == 0 ]] || die 'delete não combina --dry-run e --yes'
   elif [[ $action == show ]]; then
-    [[ -z $COMMENT$TOKEN_NAME$PASSWORD_FILE$OUTPUT_FILE$EXPIRE$PRIVSEP ]] \
-      || die 'show não aceita opções de criação'
+    [[ -z $COMMENT$TOKEN_NAME$PASSWORD_FILE$OUTPUT_FILE$EXPIRE$PRIVSEP ]] ||
+      die 'show não aceita opções de criação'
     [[ $DRY_RUN == 0 && $ASSUME_YES == 0 ]] || die 'show não aceita --dry-run/--yes'
   fi
   [[ -z $OUTPUT_FILE || ! -e $OUTPUT_FILE ]] || die '--output deve apontar para um arquivo ainda inexistente'
-  [[ -z $OUTPUT_FILE || -d ${OUTPUT_FILE%/*} || ${OUTPUT_FILE%/*} == "$OUTPUT_FILE" ]] \
-    || die 'diretório de --output não existe'
+  [[ -z $OUTPUT_FILE || -d ${OUTPUT_FILE%/*} || ${OUTPUT_FILE%/*} == "$OUTPUT_FILE" ]] ||
+    die 'diretório de --output não existe'
 }
 
 list_roles() {
@@ -291,8 +306,8 @@ preflight() {
 
   version_output=$(pveversion) || die 'pveversion falhou'
   PVE_MAJOR=$(awk -F'[./]' '/pve-manager/ { print $2; exit }' <<<"$version_output")
-  [[ $PVE_MAJOR == 8 || $PVE_MAJOR == 9 ]] \
-    || die "versão PVE não suportada (esperado 8.x ou 9.x): $version_output"
+  [[ $PVE_MAJOR == 8 || $PVE_MAJOR == 9 ]] ||
+    die "versão PVE não suportada (esperado 8.x ou 9.x): $version_output"
 
   if [[ -e /etc/pve/corosync.conf ]]; then
     require_command pvecm
@@ -313,8 +328,8 @@ confirm_changes() {
   [[ -r /dev/tty ]] || die 'confirmação interativa indisponível; use --yes se revisou a operação'
   printf 'Continuar com %s de %s? [s/N] ' "$1" "$USER_ID" >/dev/tty
   IFS= read -r answer </dev/tty
-  [[ $answer == s || $answer == S || $answer == sim || $answer == SIM ]] \
-    || die 'operação cancelada'
+  [[ $answer == s || $answer == S || $answer == sim || $answer == SIM ]] ||
+    die 'operação cancelada'
 }
 
 confirm_reset() {
@@ -370,28 +385,28 @@ load_reset_inventory() {
 
   while IFS=: read -r kind id members _; do
     case $kind in
-      user)
-        if ! is_root_identity "$id"; then
-          RESET_USERS+=("$id")
+    user)
+      if ! is_root_identity "$id"; then
+        RESET_USERS+=("$id")
+      fi
+      ;;
+    token)
+      token_owner=${id%%!*}
+      if ! is_root_identity "$token_owner"; then
+        RESET_TOKENS+=("$id")
+      fi
+      ;;
+    group)
+      RESET_GROUPS+=("$id")
+      IFS=, read -r -a group_members <<<"$members"
+      for identity in "${group_members[@]}"; do
+        if is_root_identity "$identity"; then
+          RESET_ROOT_GROUPS["$id"]=1
+          break
         fi
-        ;;
-      token)
-        token_owner=${id%%!*}
-        if ! is_root_identity "$token_owner"; then
-          RESET_TOKENS+=("$id")
-        fi
-        ;;
-      group)
-        RESET_GROUPS+=("$id")
-        IFS=, read -r -a group_members <<<"$members"
-        for identity in "${group_members[@]}"; do
-          if is_root_identity "$identity"; then
-            RESET_ROOT_GROUPS["$id"]=1
-            break
-          fi
-        done
-        ;;
-      role) RESET_ROLES+=("$id") ;;
+      done
+      ;;
+    role) RESET_ROLES+=("$id") ;;
     esac
   done <"$PVE_USER_CFG"
 
@@ -400,20 +415,20 @@ load_reset_inventory() {
   while IFS=$'\t' read -r path type identity role; do
     [[ -n $path ]] || continue
     case $type in
-      user)
-        is_root_identity "$identity" && RESET_KEEP_ROLES["$role"]=1 || RESET_ACLS+=("$path"$'\t'"$type"$'\t'"$identity"$'\t'"$role")
-        ;;
-      token)
-        token_owner=${identity%%!*}
-        is_root_identity "$token_owner" && RESET_KEEP_ROLES["$role"]=1 || RESET_ACLS+=("$path"$'\t'"$type"$'\t'"$identity"$'\t'"$role")
-        ;;
-      group)
-        if [[ ${RESET_ROOT_GROUPS[$identity]:-0} == 1 ]]; then
-          RESET_KEEP_ROLES["$role"]=1
-        else
-          RESET_ACLS+=("$path"$'\t'"$type"$'\t'"$identity"$'\t'"$role")
-        fi
-        ;;
+    user)
+      is_root_identity "$identity" && RESET_KEEP_ROLES["$role"]=1 || RESET_ACLS+=("$path"$'\t'"$type"$'\t'"$identity"$'\t'"$role")
+      ;;
+    token)
+      token_owner=${identity%%!*}
+      is_root_identity "$token_owner" && RESET_KEEP_ROLES["$role"]=1 || RESET_ACLS+=("$path"$'\t'"$type"$'\t'"$identity"$'\t'"$role")
+      ;;
+    group)
+      if [[ ${RESET_ROOT_GROUPS[$identity]:-0} == 1 ]]; then
+        RESET_KEEP_ROLES["$role"]=1
+      else
+        RESET_ACLS+=("$path"$'\t'"$type"$'\t'"$identity"$'\t'"$role")
+      fi
+      ;;
     esac
   done <<<"$acl_output"
 }
@@ -459,16 +474,16 @@ reset_environment() {
   for entry in "${RESET_ACLS[@]}"; do
     IFS=$'\t' read -r path type identity role <<<"$entry"
     case $type in
-      user) pveum acl delete "$path" --users "$identity" --roles "$role" ;;
-      token) pveum acl delete "$path" --tokens "$identity" --roles "$role" ;;
-      group) pveum acl delete "$path" --groups "$identity" --roles "$role" ;;
+    user) pveum acl delete "$path" --users "$identity" --roles "$role" ;;
+    token) pveum acl delete "$path" --tokens "$identity" --roles "$role" ;;
+    group) pveum acl delete "$path" --groups "$identity" --roles "$role" ;;
     esac || die "não foi possível remover ACL de $identity em $path"
   done
 
   for item in "${RESET_TOKENS[@]}"; do
     token_owner=${item%%!*}
-    pveum user token remove "$token_owner" "${item#*!}" \
-      || die "não foi possível remover token $item"
+    pveum user token remove "$token_owner" "${item#*!}" ||
+      die "não foi possível remover token $item"
   done
   for item in "${RESET_USERS[@]}"; do
     pveum user delete "$item" || die "não foi possível remover usuário PVE $item"
@@ -612,8 +627,7 @@ role_definition_matches() {
       found_role = 1
     }
     END { exit !found_role }
-  ' <<<"$output"
-  then
+  ' <<<"$output"; then
     return 0
   fi
 
@@ -638,6 +652,38 @@ role_definition_matches() {
   ' "$PVE_USER_CFG"
 }
 
+terraform_role_upgrade_privileges() {
+  local privileges legacy_privileges
+  [[ $ROLE == terraform-api ]] || return 1
+  privileges=$(role_privileges "$ROLE") || return 1
+
+  legacy_privileges=${privileges//,Datastore.Allocate/}
+  if role_definition_matches "$PVE_ROLE" "$legacy_privileges"; then
+    printf 'Datastore.Allocate'
+    return 0
+  fi
+
+  legacy_privileges=${privileges//,Datastore.Allocate/}
+  if role_definition_matches "$PVE_ROLE" "$legacy_privileges"; then
+    printf 'Datastore.Allocate'
+    return 0
+  fi
+
+  legacy_privileges=${privileges//,VM.Audit/}
+  if role_definition_matches "$PVE_ROLE" "$legacy_privileges"; then
+    printf 'VM.Audit'
+    return 0
+  fi
+
+  legacy_privileges=${privileges//,Sys.Modify/}
+  legacy_privileges=${legacy_privileges//,VM.Audit/}
+  if role_definition_matches "$PVE_ROLE" "$legacy_privileges"; then
+    printf 'Sys.Modify,VM.Audit'
+    return 0
+  fi
+  return 1
+}
+
 validate_privileges() {
   local privileges privilege role_listing
   if ! privileges=$(role_privileges "$ROLE"); then
@@ -647,12 +693,13 @@ validate_privileges() {
   role_listing=$(pveum role list) || die 'não foi possível listar roles'
   IFS=, read -r -a privilege_list <<<"$privileges"
   for privilege in "${privilege_list[@]}"; do
-    grep -Fq "$privilege" <<<"$role_listing" \
-      || die "o nó não reconhece o privilégio $privilege; nenhuma alteração foi feita"
+    grep -Fq "$privilege" <<<"$role_listing" ||
+      die "o nó não reconhece o privilégio $privilege; nenhuma alteração foi feita"
   done
   if role_exists "$PVE_ROLE"; then
-    role_definition_matches "$PVE_ROLE" "$privileges" \
-      || die "a role existente $PVE_ROLE não corresponde ao catálogo; revise-a manualmente"
+    role_definition_matches "$PVE_ROLE" "$privileges" ||
+      terraform_role_upgrade_privileges >/dev/null ||
+      die "a role existente $PVE_ROLE não corresponde ao catálogo; revise-a manualmente"
   fi
 }
 
@@ -792,7 +839,11 @@ extract_token_secret() {
 save_token_secret() {
   local secret=$1
   if [[ -n $OUTPUT_FILE ]]; then
-    if ! (umask 077; set -o noclobber; printf '%s\n' "$secret" >"$OUTPUT_FILE"); then
+    if ! (
+      umask 077
+      set -o noclobber
+      printf '%s\n' "$secret" >"$OUTPUT_FILE"
+    ); then
       die "token criado, mas não foi possível gravar o segredo em $OUTPUT_FILE; revogue-o manualmente"
     fi
     chmod 600 "$OUTPUT_FILE" || die "token criado, mas não foi possível proteger $OUTPUT_FILE"
@@ -823,23 +874,36 @@ load_password() {
   if [[ $PASSWORD_FILE == - ]]; then
     IFS= read -r PASSWORD_VALUE || die 'não foi possível ler a senha de stdin'
   else
-    IFS= read -r PASSWORD_VALUE <"$PASSWORD_FILE" || [[ -n ${PASSWORD_VALUE:-} ]] \
-      || die 'arquivo de senha vazio ou ilegível'
+    IFS= read -r PASSWORD_VALUE <"$PASSWORD_FILE" || [[ -n ${PASSWORD_VALUE:-} ]] ||
+      die 'arquivo de senha vazio ou ilegível'
   fi
   [[ -n $PASSWORD_VALUE ]] || die 'senha vazia não é permitida'
 }
 
 ensure_custom_role() {
-  local privileges output
+  local privileges output upgrade_privileges
   privileges=$(role_privileges "$ROLE") || return 0
   if role_exists "$PVE_ROLE"; then
-    printf 'Role %s já existe e corresponde ao catálogo.\n' "$PVE_ROLE"
+    if role_definition_matches "$PVE_ROLE" "$privileges"; then
+      printf 'Role %s já existe e corresponde ao catálogo.\n' "$PVE_ROLE"
+    elif upgrade_privileges=$(terraform_role_upgrade_privileges); then
+      if output=$(pveum role modify "$PVE_ROLE" -privs "$upgrade_privileges" -append 1 2>&1); then
+        role_definition_matches "$PVE_ROLE" "$privileges" ||
+          die "a role $PVE_ROLE foi atualizada, mas não corresponde ao catálogo; revise-a manualmente"
+        printf 'Permissões %s adicionadas à role %s.\n' "$upgrade_privileges" "$PVE_ROLE"
+      else
+        printf '%s\n' "$output" >&2
+        die "não foi possível adicionar Sys.Modify à role $PVE_ROLE"
+      fi
+    else
+      die "a role existente $PVE_ROLE não corresponde ao catálogo; revise-a manualmente"
+    fi
   else
     if output=$(pveum role add "$PVE_ROLE" -privs "$privileges" 2>&1); then
       printf 'Role %s criada.\n' "$PVE_ROLE"
     elif role_exists "$PVE_ROLE"; then
-      role_definition_matches "$PVE_ROLE" "$privileges" \
-        || die "a role existente $PVE_ROLE não corresponde ao catálogo; revise-a manualmente"
+      role_definition_matches "$PVE_ROLE" "$privileges" ||
+        die "a role existente $PVE_ROLE não corresponde ao catálogo; revise-a manualmente"
       printf 'Role %s já existe; será reutilizada.\n' "$PVE_ROLE"
     else
       printf '%s\n' "$output" >&2
@@ -851,14 +915,14 @@ ensure_custom_role() {
 create_user() {
   local was_created=0 token_output='' token_secret='' token_exists=0 existing_privsep role_state status
   local group_state
-  local current_groups updated_groups group
+  local current_groups updated_groups
   local command_output
   local -a token_options=()
   [[ -n $COMMENT ]] || COMMENT="Gerenciado pelo $PROGRAM: $ROLE"
   preflight
   [[ $DRY_RUN == 1 ]] || acquire_lock
-  if [[ $DRY_RUN == 0 && $ROLE == usuario-comum && -z $PASSWORD_FILE ]] \
-    && ! user_exists "$USER_ID"; then
+  if [[ $DRY_RUN == 0 && $ROLE == usuario-comum && -z $PASSWORD_FILE ]] &&
+    ! user_exists "$USER_ID"; then
     die 'para usuario-comum novo, informe --password-file FILE ou --password-file -'
   fi
   validate_privileges
@@ -875,17 +939,21 @@ create_user() {
     fi
   fi
   if ((token_exists)); then
-    existing_privsep=$(token_privsep) \
-      || die "não foi possível verificar privsep do token existente $TOKEN_ID"
-    [[ $existing_privsep == "$PRIVSEP" ]] \
-      || die "privsep do token existente $TOKEN_ID não corresponde a --privsep $PRIVSEP"
+    existing_privsep=$(token_privsep) ||
+      die "não foi possível verificar privsep do token existente $TOKEN_ID"
+    [[ $existing_privsep == "$PRIVSEP" ]] ||
+      die "privsep do token existente $TOKEN_ID não corresponde a --privsep $PRIVSEP"
   fi
-  [[ -z $OUTPUT_FILE || $token_exists == 0 ]] \
-    || die 'token já existe; seu segredo não pode ser recuperado para --output'
+  [[ -z $OUTPUT_FILE || $token_exists == 0 ]] ||
+    die 'token já existe; seu segredo não pode ser recuperado para --output'
 
   if [[ $DRY_RUN == 1 ]]; then
     if role_exists "$PVE_ROLE"; then
-      role_state=' (já existe)'
+      if upgrade_privileges=$(terraform_role_upgrade_privileges); then
+        role_state=" (adicionar $upgrade_privileges)"
+      else
+        role_state=' (já existe)'
+      fi
     else
       role_state=' (criar)'
     fi
@@ -941,8 +1009,8 @@ create_user() {
     printf 'Usuário já existe; senha não alterada.\n'
   fi
   if ! group_is_assigned "$USER_ID" "$GROUP_ID"; then
-    current_groups=$(user_groups "$USER_ID") \
-      || die "não foi possível ler os grupos atuais de $USER_ID"
+    current_groups=$(user_groups "$USER_ID") ||
+      die "não foi possível ler os grupos atuais de $USER_ID"
     updated_groups=${current_groups:+$current_groups,}$GROUP_ID
     pveum user modify "$USER_ID" --groups "$updated_groups"
     printf 'Usuário adicionado ao grupo %s.\n' "$GROUP_ID"
@@ -960,18 +1028,18 @@ create_user() {
         "${token_options[@]}" --output-format json 2>&1); then
         token_secret=$(extract_token_secret <<<"$token_output")
         token_output=''
-        [[ -n $token_secret ]] \
-          || die "token criado, mas o segredo retornado pelo pveum não pôde ser extraído; revogue $TOKEN_ID e crie-o novamente"
+        [[ -n $token_secret ]] ||
+          die "token criado, mas o segredo retornado pelo pveum não pôde ser extraído; revogue $TOKEN_ID e crie-o novamente"
         save_token_secret "$token_secret"
         token_secret=''
       elif user_token_exists; then
         token_output=''
-        [[ -z $OUTPUT_FILE ]] \
-          || die "token $TOKEN_ID já existe e seu segredo não pode ser recuperado para --output"
-        existing_privsep=$(token_privsep) \
-          || die "não foi possível verificar privsep do token existente $TOKEN_ID"
-        [[ $existing_privsep == "$PRIVSEP" ]] \
-          || die "privsep do token existente $TOKEN_ID não corresponde a --privsep $PRIVSEP"
+        [[ -z $OUTPUT_FILE ]] ||
+          die "token $TOKEN_ID já existe e seu segredo não pode ser recuperado para --output"
+        existing_privsep=$(token_privsep) ||
+          die "não foi possível verificar privsep do token existente $TOKEN_ID"
+        [[ $existing_privsep == "$PRIVSEP" ]] ||
+          die "privsep do token existente $TOKEN_ID não corresponde a --privsep $PRIVSEP"
         token_exists=1
         printf 'Token %s já existe; será reutilizado sem alterar expiração nem segredo.\n' "$TOKEN_ID"
       else
@@ -980,8 +1048,8 @@ create_user() {
       fi
     fi
     if [[ $PRIVSEP == 1 ]]; then
-      pveum acl modify "$EFFECTIVE_PATH" --tokens "$TOKEN_ID" --roles "$PVE_ROLE" \
-        || die "não foi possível aplicar a ACL separada do token $TOKEN_ID"
+      pveum acl modify "$EFFECTIVE_PATH" --tokens "$TOKEN_ID" --roles "$PVE_ROLE" ||
+        die "não foi possível aplicar a ACL separada do token $TOKEN_ID"
       printf 'ACL separada aplicada ao token.\n'
     fi
   fi
@@ -1009,8 +1077,8 @@ delete_user() {
     while IFS= read -r token; do
       [[ -n $token ]] || continue
       token_identity="$USER_ID!$token"
-      entries=$(identity_acl_entries token "$token_identity") \
-        || die "não foi possível listar ACLs do token $token_identity"
+      entries=$(identity_acl_entries token "$token_identity") ||
+        die "não foi possível listar ACLs do token $token_identity"
       while IFS=$'\t' read -r path role; do
         [[ -n $path ]] || continue
         pveum acl delete "$path" --tokens "$token_identity" --roles "$role"
@@ -1033,8 +1101,8 @@ delete_user() {
     else
       status=$?
       [[ $status == 1 ]] || die 'não foi possível verificar membros do grupo; limpeza cancelada'
-      entries=$(identity_acl_entries group "$GROUP_ID") \
-        || die "não foi possível listar ACLs do grupo $GROUP_ID"
+      entries=$(identity_acl_entries group "$GROUP_ID") ||
+        die "não foi possível listar ACLs do grupo $GROUP_ID"
       while IFS=$'\t' read -r path role; do
         [[ -n $path ]] || continue
         pveum acl delete "$path" --groups "$GROUP_ID" --roles "$role"
@@ -1074,8 +1142,8 @@ show_user() {
   printf 'ACLs relacionadas:\n'
   while IFS= read -r line; do
     line=${line//│/|}
-    if [[ $line == *"| $EFFECTIVE_PATH "* ]] \
-      && [[ $line == *"| group | $GROUP_ID "* || $line == *"| token | $USER_ID!"* ]]; then
+    if [[ $line == *"| $EFFECTIVE_PATH "* ]] &&
+      [[ $line == *"| group | $GROUP_ID "* || $line == *"| token | $USER_ID!"* ]]; then
       printf '%s\n' "$line"
       found=1
     fi
@@ -1087,11 +1155,11 @@ main() {
   local action=${1:-}
   parse_args "$@"
   case $action in
-    create) create_user ;;
-    delete) delete_user ;;
-    show) show_user ;;
-    reset) reset_environment ;;
-    list-roles) ;;
+  create) create_user ;;
+  delete) delete_user ;;
+  show) show_user ;;
+  reset) reset_environment ;;
+  list-roles) ;;
   esac
 }
 

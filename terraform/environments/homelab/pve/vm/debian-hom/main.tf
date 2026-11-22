@@ -15,10 +15,15 @@ module "vm" {
   startup_up_delay   = var.startup_up_delay
   startup_down_delay = var.startup_down_delay
 
-  os_type           = var.os_type
-  content_type      = var.content_type
-  template_file_url = var.template_file_url
-  datastore_id      = var.datastore_id
+  username  = var.username
+  user_keys = var.user_keys
+
+  os_type                 = var.os_type
+  content_type            = var.content_type
+  template_file_url       = var.template_file_url
+  datastore_id            = var.datastore_id
+  cloud_init_datastore_id = var.cloud_init_datastore_id
+  file_name               = var.file_name
 
   disk_datastore_id = var.disk_datastore_id
   disk_size         = var.disk_size
@@ -32,7 +37,7 @@ module "vm" {
   memory_dedicated = var.memory_dedicated
   memory_floating  = var.memory_floating
 
-  network_vlan_id  = var.network_vlan_id
+  network_bridge   = var.network_bridge
   network_model    = var.network_model
   network_firewall = var.network_firewall
 
